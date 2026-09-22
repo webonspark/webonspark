@@ -37,6 +37,7 @@ Backend (from `server/`):
 cd server
 npm install
 cp .env.example .env   # fill in DB_* and JWT_SECRET
+mysql -u <user> -p <database> < config/dbschema.sql   # create all tables (safe to re-run)
 npm run dev             # http://localhost:5000
 ```
 
