@@ -1,0 +1,9 @@
+{
+  "name": "WebOnspark Technologies",
+  "short_name": "WebOnspark",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2f2065",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

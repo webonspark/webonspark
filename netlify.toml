@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Pre-rendered pages are served directly; unknown URLs get the 404 page.
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
