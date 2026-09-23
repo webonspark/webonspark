@@ -5,7 +5,8 @@ import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Container from 'react-bootstrap/Container';
 import Icon from './Icons';
-import { appServices, webServices, servicePath } from '../data/services';
+import { servicePath } from '../data/services';
+import { useContent } from '../context/ContentContext';
 import { getUser, logout } from '../utils/auth';
 
 // 👇 NEW LOGO: put your file at src/assets/logo.png (or .svg / .webp) and update the name here
@@ -17,6 +18,9 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState(null);
   const { pathname } = useLocation();
+  const { services } = useContent();
+  const appServices = services.filter((s) => s.category === 'app');
+  const webServices = services.filter((s) => s.category === 'web');
 
   useEffect(() => setExpanded(false), [pathname]);
 

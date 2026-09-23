@@ -8,9 +8,10 @@ import Icon, { WhatsAppIcon } from '../components/Icons';
 import { useFormState } from '../utils/useFormState';
 import { Field, Honeypot, FormStatus, SubmitButton, Form } from '../components/FormKit';
 import { COMPANY, whatsappLink, mailLink } from '../config';
-import { allServices } from '../data/services';
+import { useContent } from '../context/ContentContext';
 
 function ContactForm() {
+  const { services } = useContent();
   const form = useFormState(
     'Contact',
     { name: '', email: '', phone: '', subject: '', service: '', message: '' },
@@ -23,7 +24,7 @@ function ContactForm() {
         <Field form={form} name="name" label="Full name" required col={6} autoComplete="name" />
         <Field form={form} name="phone" label="Mobile / WhatsApp" type="tel" required col={6} autoComplete="tel" />
         <Field form={form} name="email" label="Email" type="email" required col={6} autoComplete="email" />
-        <Field form={form} name="service" label="Interested in" options={[...allServices.map((s) => s.name), 'SEO / Maintenance', 'Other']} col={6} />
+        <Field form={form} name="service" label="Interested in" options={[...services.map((s) => s.name), 'SEO / Maintenance', 'Other']} col={6} />
         <Field form={form} name="subject" label="Subject" col={12} />
         <Field form={form} name="message" label="Message" as="textarea" rows={5} required col={12} />
       </div>

@@ -7,21 +7,23 @@ import Seo from '../components/Seo';
 import { orgSchema, faqSchema } from '../utils/seo';
 import Icon from '../components/Icons';
 import { SectionTitle, Faq } from '../components/Common';
+import { SkeletonLine, SkeletonBlock, SkeletonCard } from '../components/Skeleton';
 import TemplateMockup from '../components/TemplateMockup';
 import { useFormState } from '../utils/useFormState';
 import { Field, Honeypot, FormStatus, SubmitButton, Form } from '../components/FormKit';
-import { appServices, webServices, servicePath, processSteps } from '../data/services';
+import { servicePath, processSteps } from '../data/services';
 import { whyUs, testimonials, homeFaqs } from '../data/home';
-import { blogs, blogPath } from '../data/blogs';
+import { blogPath } from '../data/blogs';
+import { useContent } from '../context/ContentContext';
 import { whatsappLink, SITE_URL, COMPANY } from '../config';
 
-const showcase = [
-  { kind: 'web', svc: webServices.find((s) => s.slug === 'restaurant-websites'), i: 0 },
-  { kind: 'app', svc: appServices.find((s) => s.slug === 'delivery-apps'), i: 0 },
-  { kind: 'web', svc: webServices.find((s) => s.slug === 'hospital-clinic-websites'), i: 0 },
-  { kind: 'app', svc: appServices.find((s) => s.slug === 'booking-apps'), i: 2 },
-  { kind: 'web', svc: webServices.find((s) => s.slug === 'real-estate-websites'), i: 1 },
-  { kind: 'app', svc: appServices.find((s) => s.slug === 'education-apps'), i: 0 },
+const SHOWCASE_PICKS = [
+  { kind: 'web', slug: 'restaurant-websites', i: 0 },
+  { kind: 'app', slug: 'delivery-apps', i: 0 },
+  { kind: 'web', slug: 'hospital-clinic-websites', i: 0 },
+  { kind: 'app', slug: 'booking-apps', i: 2 },
+  { kind: 'web', slug: 'real-estate-websites', i: 1 },
+  { kind: 'app', slug: 'education-apps', i: 0 },
 ];
 
 // Hero: one solid colour, no gradient
@@ -111,8 +113,8 @@ function MarqueeRow({ services, label }) {
   );
 }
 
-function ServiceMarquee() {
-  const all = [...webServices, ...appServices];
+function ServiceMarquee({ services }) {
+  const all = services;
   // Split into two roughly-equal rows, same chip/marquee design on each line
   const mid = Math.ceil(all.length / 2);
   const row1 = all.slice(0, mid);
@@ -152,8 +154,59 @@ function AskQuestion() {
   );
 }
 
+function HomeSkeleton() {
+  return (
+    <>
+      <section className="hero" style={heroStyle}>
+        <Container className="position-relative">
+          <Row className="align-items-center g-5">
+            <Col lg={6}>
+              <SkeletonLine width="90%" height={44} className="skel-light mb-2" />
+              <SkeletonLine width="70%" height={44} className="skel-light mb-3" />
+              <SkeletonLine width="95%" className="skel-light mb-2" />
+              <SkeletonLine width="60%" className="skel-light mb-4" />
+              <div className="d-flex gap-3">
+                <SkeletonBlock width={140} height={48} className="skel-light" />
+                <SkeletonBlock width={160} height={48} className="skel-light" />
+              </div>
+            </Col>
+            <Col lg={6}>
+              <SkeletonBlock height={320} className="skel-light" />
+            </Col>
+          </Row>
+        </Container>
+      </section>
+      <section className="stats-strip">
+        <Container>
+          <Row className="g-3 text-center">
+            {[0, 1, 2, 3].map((i) => (
+              <Col xs={6} md={3} key={i}><SkeletonBlock height={56} /></Col>
+            ))}
+          </Row>
+        </Container>
+      </section>
+      <section className="section">
+        <Container>
+          <Row className="g-4">
+            {[0, 1, 2].map((i) => <Col md={4} key={i}><SkeletonCard /></Col>)}
+          </Row>
+        </Container>
+      </section>
+    </>
+  );
+}
+
 export default function Home() {
   const [tab, setTab] = useState('all');
+  const { services, blogs, status } = useContent();
+
+  if (status !== 'ready') return <HomeSkeleton />;
+
+  const webServices = services.filter((s) => s.category === 'web');
+  const appServices = services.filter((s) => s.category === 'app');
+  const showcase = SHOWCASE_PICKS
+    .map(({ kind, slug, i }) => ({ kind, i, svc: services.find((s) => s.slug === slug) }))
+    .filter((s) => s.svc);
   const items = showcase.filter((s) => tab === 'all' || s.kind === tab);
 
   return (
@@ -212,10 +265,10 @@ export default function Home() {
             <Col lg={6}>
               <div className="hero-visual">
                 <div className="hv-browser float-slow">
-                  <TemplateMockup kind="web" tpl={webServices[0].templates[0]} mock={webServices[0].mock} size="md" />
+                  <TemplateMockup kind="web" tpl={webServices[0].templates[0]} mock={webServices[0].mock} size="md" useImage={false} />
                 </div>
                 <div className="hv-phone float-fast">
-                  <TemplateMockup kind="app" tpl={appServices[0].templates[0]} mock={appServices[0].mock} size="sm" />
+                  <TemplateMockup kind="app" tpl={appServices[0].templates[0]} mock={appServices[0].mock} size="sm" useImage={false} />
                 </div>
                 <div className="hv-badge hv-badge-1"><Icon name="bolt" size={18} /> <span><b>Fast</b> pre-rendered pages</span></div>
                 <div className="hv-badge hv-badge-2"><Icon name="search" size={18} /> <span><b>SEO</b> ready on launch</span></div>
@@ -271,7 +324,7 @@ export default function Home() {
           </Row>
 
           {/* Two-line auto-scroll (each line same chip/marquee UI, pauses on hover) */}
-          <ServiceMarquee />
+          <ServiceMarquee services={services} />
         </Container>
       </section>
 
@@ -330,7 +383,7 @@ export default function Home() {
                 <Col sm={6} lg={4} key={svc.slug + tpl.name}>
                   <Link to={servicePath(svc)} className="tpl-card">
                     <div className={`tpl-preview ${kind === 'app' ? 'is-app' : ''}`}>
-                      <TemplateMockup kind={kind} tpl={tpl} mock={svc.mock} />
+                      <TemplateMockup kind={kind} tpl={tpl} mock={svc.mock} useImage={false} />
                     </div>
                     <div className="tpl-body">
                       <span className="tpl-tag">{svc.name}</span>

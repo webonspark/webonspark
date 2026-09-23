@@ -7,9 +7,26 @@ import { breadcrumbSchema } from '../utils/seo';
 import { PageHero, SectionTitle } from '../components/Common';
 import Icon from '../components/Icons';
 import EnquiryForm from '../components/EnquiryForm';
-import { serviceCategories, servicePath, processSteps, allServices } from '../data/services';
+import { serviceCategories, servicePath, processSteps } from '../data/services';
+import { useContent } from '../context/ContentContext';
+import { SkeletonLine, SkeletonBlock } from '../components/Skeleton';
 
-export function ServiceGrid({ items }) {
+export function ServiceGrid({ items, loading, count = 6 }) {
+  if (loading) {
+    return (
+      <Row className="g-4">
+        {Array.from({ length: count }).map((_, i) => (
+          <Col sm={6} lg={4} key={i}>
+            <div className="skel-card">
+              <SkeletonBlock width={40} height={40} className="skel-circle mb-3" />
+              <SkeletonLine width="70%" height={18} className="mb-2" />
+              <SkeletonLine width="95%" />
+            </div>
+          </Col>
+        ))}
+      </Row>
+    );
+  }
   return (
     <Row className="g-4">
       {items.map((s) => (
@@ -27,6 +44,8 @@ export function ServiceGrid({ items }) {
 }
 
 export default function Services() {
+  const { services, status } = useContent();
+
   return (
     <>
       <Seo
@@ -58,7 +77,7 @@ export default function Services() {
                   All {c.name.toLowerCase()} <Icon name="arrow" size={16} />
                 </Link>
               </div>
-              <ServiceGrid items={c.items} />
+              <ServiceGrid items={services.filter((s) => s.category === k)} loading={status !== 'ready'} count={k === 'web' ? 10 : 5} />
             </Container>
           </section>
         );
@@ -85,7 +104,7 @@ export default function Services() {
             <Col lg={9}>
               <div className="form-card">
                 <SectionTitle eyebrow="Enquiry" title="Tell us what you want to build" text="Share a few details and we'll send a clear, itemised quote within 24 hours." />
-                <EnquiryForm serviceOptions={[...allServices.map((s) => s.name), 'Something else']} />
+                <EnquiryForm serviceOptions={[...services.map((s) => s.name), 'Something else']} />
               </div>
             </Col>
           </Row>

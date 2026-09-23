@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
-import { getAdmin } from '../utils/adminAuth';
+import { getAdmin } from '../../utils/adminAuth';
 
 /** Wraps every /admin/* page: requires a signed-in admin. Page-to-page nav lives only on the Dashboard. */
 export default function AdminLayout({ title, children }) {

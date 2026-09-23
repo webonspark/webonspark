@@ -49,3 +49,28 @@ CREATE TABLE IF NOT EXISTS leads (
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- The 15 services shown on /services — slug/category are indexed columns, everything
+-- else (name, features, templates, faqs, etc.) lives in the JSON data column.
+-- See server/models/service.js. Fetched at runtime via ContentContext on the client.
+CREATE TABLE IF NOT EXISTS services (
+  id INT NOT NULL AUTO_INCREMENT,
+  slug VARCHAR(150) NOT NULL,
+  category ENUM('app','web') NOT NULL,
+  data JSON NOT NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Blog posts shown on /blog. Same shape as services: slug is indexed, the rest
+-- (title, content blocks, tags, etc.) lives in the JSON data column.
+-- See server/models/blog.js.
+CREATE TABLE IF NOT EXISTS blogs (
+  id INT NOT NULL AUTO_INCREMENT,
+  slug VARCHAR(150) NOT NULL,
+  data JSON NOT NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

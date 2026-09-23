@@ -5,12 +5,16 @@ import Col from 'react-bootstrap/Col';
 import Logo from './Logo';
 import Icon from './Icons';
 import { COMPANY, whatsappLink, mailLink } from '../config';
-import { appServices, webServices, servicePath } from '../data/services';
+import { servicePath } from '../data/services';
+import { useContent } from '../context/ContentContext';
 import '../css/home.css';
 
 
 
 export default function Footer() {
+  const { services } = useContent();
+  const appServices = services.filter((s) => s.category === 'app');
+  const webServices = services.filter((s) => s.category === 'web');
   const year = new Date().getFullYear();
   const address = COMPANY.offices[0].lines.slice(1).join(', ');
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
@@ -74,7 +78,6 @@ export default function Footer() {
               <li><Link to="/careers">Careers</Link></li>
               <li><Link to="/blog">Blog</Link></li>
               <li><Link to="/contact">Contact</Link></li>
-              <li><Link to="/login">Client login</Link></li>
               <li><Link to="/privacy-policy">Privacy policy</Link></li>
             </ul>
           </Col>

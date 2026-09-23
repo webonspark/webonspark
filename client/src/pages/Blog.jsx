@@ -6,11 +6,47 @@ import Seo from '../components/Seo';
 import { breadcrumbSchema } from '../utils/seo';
 import { PageHero } from '../components/Common';
 import Icon from '../components/Icons';
-import { blogs, blogPath } from '../data/blogs';
+import { SkeletonLine, SkeletonBlock } from '../components/Skeleton';
+import { blogPath } from '../data/blogs';
+import { useContent } from '../context/ContentContext';
 import { SITE_URL } from '../config';
 import { fmtDate } from '../utils/format';
 
+function BlogSkeleton() {
+  return (
+    <>
+      <PageHero eyebrow="Blog" title="Guides to grow your business online" crumbs={[['Blog']]} />
+      <section className="section">
+        <Container>
+          <SkeletonBlock height={220} className="mb-4" />
+          <Row className="g-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Col md={6} key={i}>
+                <SkeletonLine width="30%" className="mb-2" />
+                <SkeletonLine width="90%" height={22} className="mb-2" />
+                <SkeletonLine width="100%" />
+              </Col>
+            ))}
+          </Row>
+        </Container>
+      </section>
+    </>
+  );
+}
+
 export default function Blog() {
+  const { blogs, status } = useContent();
+
+  if (status !== 'ready') return <BlogSkeleton />;
+  if (blogs.length === 0) {
+    return (
+      <>
+        <PageHero eyebrow="Blog" title="Guides to grow your business online" crumbs={[['Blog']]} />
+        <section className="section"><Container><p className="text-muted">No posts yet — check back soon.</p></Container></section>
+      </>
+    );
+  }
+
   const [first, ...rest] = blogs;
   return (
     <>

@@ -1,3 +1,5 @@
+import SkeletonImage from './SkeletonImage';
+
 /**
  * Pure-CSS template preview (no images → very lightweight).
  * kind: 'web' shows a browser frame, 'app' shows a phone frame.
@@ -69,32 +71,52 @@ function Body({ layout, tpl, mock }) {
   }
 }
 
-export default function TemplateMockup({ tpl, mock, kind = 'web', size = 'sm' }) {
-  const [p, a, bg] = tpl.palette;
+// Shortens a real URL down to the "domain/path" text a browser address bar would show.
+const shortUrl = (url) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
+
+export default function TemplateMockup({ tpl, mock, kind = 'web', size = 'sm', useImage = true }) {
+  const [p, a, bg] = tpl.palette || [];
   const style = { '--p': p, '--a': a, '--bg': bg };
+  const urlText = tpl.url ? shortUrl(tpl.url) : `${tpl.name.toLowerCase().replace(/[^a-z]/g, '')}.in`;
+  const showImage = useImage && !!tpl.image;
+
+  // Real templates (added with an image) reuse the same frame chrome, but the
+  // screen shows the actual screenshot instead of a procedurally-built layout.
+  const screen = showImage
+    ? <SkeletonImage src={tpl.image} alt={tpl.name} className="mk-real-img" />
+    : <div className="mk-body"><Body layout={tpl.layout} tpl={tpl} mock={mock} /></div>;
+
   if (kind === 'app') {
     return (
       <div className={`mk mk-phone mk-${size}`} style={style} aria-hidden="true">
         <div className="mk-notch" />
         <div className="mk-screen">
-          <div className="mk-appbar"><span className="mk-brand">{tpl.name}</span><i className="mk-avatar" /></div>
-          <div className="mk-body"><Body layout={tpl.layout} tpl={tpl} mock={mock} /></div>
-          <div className="mk-tabbar">
-            {mock.nav.map((n) => <span key={n}>{n}</span>)}
-          </div>
+          {showImage ? screen : (
+            <>
+              <div className="mk-appbar"><span className="mk-brand">{tpl.name}</span><i className="mk-avatar" /></div>
+              {screen}
+              <div className="mk-tabbar">
+                {mock.nav.map((n) => <span key={n}>{n}</span>)}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
   }
   return (
     <div className={`mk mk-browser mk-${size}`} style={style} aria-hidden="true">
-      <div className="mk-chrome"><i /><i /><i /><span className="mk-url">{tpl.name.toLowerCase().replace(/[^a-z]/g, '')}.in</span></div>
+      <div className="mk-chrome"><i /><i /><i /><span className="mk-url">{urlText}</span></div>
       <div className="mk-screen">
-        <div className="mk-nav">
-          <span className="mk-brand">{tpl.name}</span>
-          <span className="mk-links">{mock.nav.map((n) => <span key={n}>{n}</span>)}</span>
-        </div>
-        <div className="mk-body"><Body layout={tpl.layout} tpl={tpl} mock={mock} /></div>
+        {showImage ? screen : (
+          <>
+            <div className="mk-nav">
+              <span className="mk-brand">{tpl.name}</span>
+              <span className="mk-links">{mock.nav.map((n) => <span key={n}>{n}</span>)}</span>
+            </div>
+            {screen}
+          </>
+        )}
       </div>
     </div>
   );

@@ -7,9 +7,34 @@ import { breadcrumbSchema } from '../utils/seo';
 import { PageHero } from '../components/Common';
 import Icon from '../components/Icons';
 import NotFound from './NotFound';
-import { blogs, blogPath } from '../data/blogs';
+import { SkeletonLine } from '../components/Skeleton';
+import { blogPath } from '../data/blogs';
+import { useContent } from '../context/ContentContext';
 import { fmtDate } from '../utils/format';
 import { SITE_URL, whatsappLink } from '../config';
+
+function BlogPostSkeleton() {
+  return (
+    <>
+      <section className="page-hero">
+        <Container>
+          <SkeletonLine width={160} height={14} className="skel-light mb-3" />
+          <SkeletonLine width="70%" height={34} className="skel-light" />
+        </Container>
+      </section>
+      <section className="section">
+        <Container>
+          <Row className="g-5">
+            <Col lg={8}>
+              {Array.from({ length: 6 }).map((_, i) => <SkeletonLine key={i} width={`${95 - (i % 3) * 15}%`} className="mb-3" />)}
+            </Col>
+            <Col lg={4}><SkeletonLine height={160} /></Col>
+          </Row>
+        </Container>
+      </section>
+    </>
+  );
+}
 
 function Block({ block }) {
   const [type, val] = block;
@@ -23,6 +48,8 @@ function Block({ block }) {
 
 export default function BlogPost() {
   const { slug } = useParams();
+  const { blogs, status } = useContent();
+  if (status !== 'ready') return <BlogPostSkeleton />;
   const post = blogs.find((b) => b.slug === slug);
   if (!post) return <NotFound />;
   const path = blogPath(post);

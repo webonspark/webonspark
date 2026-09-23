@@ -1,6 +1,6 @@
 import Seo from '../../components/Seo';
-import AdminLayout from '../../components/AdminLayout';
-import AdminSubmissionsTable from '../../components/AdminSubmissionsTable';
+import AdminLayout from '../../components/admin/AdminLayout';
+import AdminSubmissionsTable from '../../components/admin/AdminSubmissionsTable';
 
 const COLUMNS = [
   { key: 'name', label: 'Name' },

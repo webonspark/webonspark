@@ -7,6 +7,7 @@ import { PageHero, SectionTitle, CheckList } from '../components/Common';
 import EnquiryForm from '../components/EnquiryForm';
 import { ServiceGrid } from './Services';
 import { serviceCategories } from '../data/services';
+import { useContent } from '../context/ContentContext';
 
 const extras = {
   app: ['Android & iOS from one codebase', 'Admin panel for your team', 'Payment gateway integration', 'Push notifications', 'Play Store & App Store publishing', 'Analytics & crash reporting'],
@@ -15,6 +16,8 @@ const extras = {
 
 export default function ServiceCategory({ type }) {
   const c = serviceCategories[type];
+  const { services, status } = useContent();
+  const items = services.filter((s) => s.category === type);
   const path = `/services/${c.slug}`;
   return (
     <>
@@ -38,7 +41,7 @@ export default function ServiceCategory({ type }) {
       <section className="section">
         <Container>
           <SectionTitle eyebrow="Choose your industry" title={`${c.name} solutions we offer`} />
-          <ServiceGrid items={c.items} />
+          <ServiceGrid items={items} loading={status !== 'ready'} count={type === 'web' ? 10 : 5} />
         </Container>
       </section>
 
@@ -64,7 +67,7 @@ export default function ServiceCategory({ type }) {
             <Col lg={9}>
               <div className="form-card">
                 <SectionTitle eyebrow="Enquiry" title={`Get a quote for ${c.name.toLowerCase()}`} />
-                <EnquiryForm serviceOptions={[...c.items.map((s) => s.name), 'Something else']} />
+                <EnquiryForm serviceOptions={[...items.map((s) => s.name), 'Something else']} />
               </div>
             </Col>
           </Row>

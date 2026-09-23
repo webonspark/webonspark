@@ -4,19 +4,20 @@ import { StaticRouter } from 'react-router-dom/server';
 import { Writable } from 'node:stream';
 import App from './App';
 import { SeoContext, renderHead } from './utils/seo';
-import { allServices, servicePath } from './data/services';
-import { blogs, blogPath } from './data/blogs';
 
+// Individual services and blog posts are no longer in this list — they're stored in
+// the database and fetched at runtime (see context/ContentContext.jsx), so admin-added
+// content shows up live without a rebuild. Their URLs still work in production via the
+// SPA-fallback rewrites in netlify.toml / vercel.json. The category hub pages and the
+// blog listing page keep their static shell here; only the items inside them are dynamic.
 export const routes = [
   '/',
   '/about',
   '/services',
   '/services/app-development',
   '/services/website-development',
-  ...allServices.map(servicePath),
   '/careers',
   '/blog',
-  ...blogs.map(blogPath),
   '/contact',
   // '/login', // Login page temporarily disabled for users.
   '/admin',
@@ -24,6 +25,8 @@ export const routes = [
   '/admin/enquiries',
   '/admin/contacts',
   '/admin/leads',
+  '/admin/services',
+  '/admin/blogs',
   '/privacy-policy',
 ];
 

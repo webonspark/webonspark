@@ -4,8 +4,9 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import Seo from '../../components/Seo';
-import AdminLayout from '../../components/AdminLayout';
-import DonutChart from '../../components/DonutChart';
+import AdminLayout from '../../components/admin/AdminLayout';
+import DonutChart from '../../components/admin/DonutChart';
+import { SkeletonLine, SkeletonBlock } from '../../components/Skeleton';
 import { API_URL } from '../../config';
 import { getAdmin, adminLogout } from '../../utils/adminAuth';
 
@@ -19,6 +20,8 @@ const SECTIONS = [
   { to: '/admin/enquiries', label: 'Enquiries', text: 'View enquiry form submissions.' },
   { to: '/admin/contacts', label: 'Contacts', text: 'View contact form submissions.' },
   { to: '/admin/leads', label: 'Leads', text: 'Add, import and track leads.' },
+  { to: '/admin/services', label: 'Services', text: 'Add and manage services shown on the site.' },
+  { to: '/admin/blogs', label: 'Blogs', text: 'Add and manage blog posts.' },
 ];
 
 // Validated for CVD-safe adjacency and contrast with scripts/validate_palette.js (dataviz skill).
@@ -73,7 +76,18 @@ export default function AdminDashboard() {
           ))}
         </Row>
 
-        {state.status === 'loading' && <p className="text-muted">Loading…</p>}
+        {state.status === 'loading' && (
+          <Row className="g-3 mb-3">
+            {STATS.map((s) => (
+              <Col key={s.key} md={4}>
+                <Card body className="text-center h-100 admin-stat-card">
+                  <SkeletonBlock width={80} height={36} className="mx-auto mb-2" />
+                  <SkeletonLine width="60%" className="mx-auto" />
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        )}
         {state.status === 'error' && <div className="form-error" role="alert">{state.error}</div>}
 
         {state.status === 'ready' && (

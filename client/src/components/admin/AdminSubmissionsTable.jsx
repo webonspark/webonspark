@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import Table from 'react-bootstrap/Table';
-import { API_URL } from '../config';
-import { getAdmin, adminLogout } from '../utils/adminAuth';
+import { SkeletonLine } from '../Skeleton';
+import { API_URL } from '../../config';
+import { getAdmin, adminLogout } from '../../utils/adminAuth';
 
 /** Fetches submissions of one form type and renders them as a table of payload fields. */
 export default function AdminSubmissionsTable({ formType, columns, emptyText = 'Nothing here yet.' }) {
@@ -33,9 +34,8 @@ export default function AdminSubmissionsTable({ formType, columns, emptyText = '
     return () => { cancelled = true; };
   }, [formType]);
 
-  if (state.status === 'loading') return <p className="text-muted">Loading…</p>;
   if (state.status === 'error') return <div className="form-error" role="alert">{state.error}</div>;
-  if (state.rows.length === 0) return <p className="text-muted">{emptyText}</p>;
+  if (state.status === 'ready' && state.rows.length === 0) return <p className="text-muted">{emptyText}</p>;
 
   return (
     <div className="table-responsive">
@@ -46,14 +46,25 @@ export default function AdminSubmissionsTable({ formType, columns, emptyText = '
             {columns.map((c) => <th key={c.key}>{c.label}</th>)}
           </tr>
         </thead>
-        <tbody>
-          {state.rows.map((row, i) => (
-            <tr key={row.id}>
-              <td>{i + 1}</td>
-              {columns.map((c) => <td key={c.key}>{row.payload?.[c.key] || ''}</td>)}
-            </tr>
-          ))}
-        </tbody>
+        {state.status === 'loading' ? (
+          <tbody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <tr key={i}>
+                <td><SkeletonLine width={16} /></td>
+                {columns.map((c) => <td key={c.key}><SkeletonLine width="80%" /></td>)}
+              </tr>
+            ))}
+          </tbody>
+        ) : (
+          <tbody>
+            {state.rows.map((row, i) => (
+              <tr key={row.id}>
+                <td>{i + 1}</td>
+                {columns.map((c) => <td key={c.key}>{row.payload?.[c.key] || ''}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        )}
       </Table>
     </div>
   );

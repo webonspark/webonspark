@@ -5,7 +5,8 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Seo from '../../components/Seo';
-import AdminLayout from '../../components/AdminLayout';
+import AdminLayout from '../../components/admin/AdminLayout';
+import { SkeletonTableRows } from '../../components/Skeleton';
 import { API_URL } from '../../config';
 import { getAdmin, adminLogout } from '../../utils/adminAuth';
 
@@ -220,10 +221,9 @@ export default function AdminLeads() {
           Expected columns: Name, Phone, Email, Website Type, Lead Owner, Project, Status. Only Name is required.
         </p>
 
-        {loadState.status === 'loading' && <p className="text-muted">Loading…</p>}
         {loadState.status === 'error' && <div className="form-error" role="alert">{loadState.error}</div>}
         {loadState.status === 'ready' && leads.length === 0 && <p className="text-muted">No leads yet.</p>}
-        {loadState.status === 'ready' && leads.length > 0 && (
+        {(loadState.status === 'loading' || (loadState.status === 'ready' && leads.length > 0)) && (
           <div className="table-responsive">
             <Table striped bordered hover size="sm" className="align-middle">
               <thead>
@@ -239,6 +239,7 @@ export default function AdminLeads() {
                   <th>Status</th>
                 </tr>
               </thead>
+              {loadState.status === 'loading' ? <tbody><SkeletonTableRows cols={9} /></tbody> : (
               <tbody>
                 {leads.map((lead, i) => (
                   <tr key={lead.id}>
@@ -262,6 +263,7 @@ export default function AdminLeads() {
                   </tr>
                 ))}
               </tbody>
+              )}
             </Table>
           </div>
         )}

@@ -3,6 +3,25 @@
   command = "npm run build"
   publish = "dist"
 
+# Individual services and blog posts are dynamic (fetched from the API at runtime, not
+# prerendered — see src/context/ContentContext.jsx). An existing static file (the category
+# hub pages, the blog listing page, etc.) always wins over these, so they only catch the
+# dynamic :slug URLs.
+[[redirects]]
+  from = "/services/app-development/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/services/website-development/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/blog/*"
+  to = "/index.html"
+  status = 200
+
 # Pre-rendered pages are served directly; unknown URLs get the 404 page.
 [[redirects]]
   from = "/*"

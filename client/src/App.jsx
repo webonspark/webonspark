@@ -1,9 +1,10 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
-import AdminHeader from './components/AdminHeader';
+import AdminHeader from './components/admin/AdminHeader';
 import Footer from './components/Footer';
 import { FloatingContact, ScrollToTop, Loader } from './components/Common';
+import { ContentProvider } from './context/ContentContext';
 
 // Each page is code-split → visitors download only the page they open.
 const Home = lazy(() => import('./pages/Home'));
@@ -17,11 +18,13 @@ const BlogPost = lazy(() => import('./pages/BlogPost'));
 const Contact = lazy(() => import('./pages/Contact'));
 // Login page temporarily disabled for users.
 // const Login = lazy(() => import('./pages/Login'));
-const Admin = lazy(() => import('./pages/Admin'));
+const Admin = lazy(() => import('./pages/admin/Login'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminEnquiries = lazy(() => import('./pages/admin/Enquiries'));
 const AdminContacts = lazy(() => import('./pages/admin/Contacts'));
 const AdminLeads = lazy(() => import('./pages/admin/Leads'));
+const AdminServices = lazy(() => import('./pages/admin/Services'));
+const AdminBlogs = lazy(() => import('./pages/admin/Blogs'));
 const Privacy = lazy(() => import('./pages/Misc').then((m) => ({ default: m.Privacy })));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -30,7 +33,7 @@ export default function App() {
   const isAdmin = pathname.startsWith('/admin');
 
   return (
-    <>
+    <ContentProvider>
       <a href="#main" className="skip-link">Skip to content</a>
       <ScrollToTop />
       {isAdmin ? <AdminHeader /> : <Header />}
@@ -54,6 +57,8 @@ export default function App() {
             <Route path="/admin/enquiries" element={<AdminEnquiries />} />
             <Route path="/admin/contacts" element={<AdminContacts />} />
             <Route path="/admin/leads" element={<AdminLeads />} />
+            <Route path="/admin/services" element={<AdminServices />} />
+            <Route path="/admin/blogs" element={<AdminBlogs />} />
             <Route path="/privacy-policy" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -61,6 +66,6 @@ export default function App() {
       </main>
       <Footer />
       <FloatingContact />
-    </>
+    </ContentProvider>
   );
 }

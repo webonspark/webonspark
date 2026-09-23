@@ -4,17 +4,19 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
-import Seo from '../components/Seo';
-import Logo from '../components/Logo';
-import { isEmail } from '../utils/submitForm';
-import { API_URL } from '../config';
-import { getAdmin, saveAdmin } from '../utils/adminAuth';
+import Seo from '../../components/Seo';
+import Logo from '../../components/Logo';
+import Icon from '../../components/Icons';
+import { isEmail } from '../../utils/submitForm';
+import { API_URL } from '../../config';
+import { getAdmin, saveAdmin } from '../../utils/adminAuth';
 
 export default function Admin() {
   const navigate = useNavigate();
   const [values, setValues] = useState({ email: '', password: '' });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState({ state: 'idle', msg: '' });
+  const [showPassword, setShowPassword] = useState(false);
 
   // Already signed in → skip the form and go straight to the dashboard.
   useEffect(() => {
@@ -89,15 +91,26 @@ export default function Admin() {
                   </Form.Group>
                   <Form.Group className="mb-3" controlId="admin-password">
                     <Form.Label>Password</Form.Label>
-                    <Form.Control
-                      type="password"
-                      name="password"
-                      value={values.password}
-                      onChange={onChange}
-                      isInvalid={!!errors.password}
-                      autoComplete="current-password"
-                      required
-                    />
+                    <div className="password-field">
+                      <Form.Control
+                        type={showPassword ? 'text' : 'password'}
+                        name="password"
+                        value={values.password}
+                        onChange={onChange}
+                        isInvalid={!!errors.password}
+                        autoComplete="current-password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle"
+                        onClick={() => setShowPassword((s) => !s)}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        tabIndex={-1}
+                      >
+                        <Icon name={showPassword ? 'eyeOff' : 'eye'} size={18} />
+                      </button>
+                    </div>
                     <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
                   </Form.Group>
                   <button type="submit" className="btn btn-brand w-100" disabled={status.state === 'sending'}>

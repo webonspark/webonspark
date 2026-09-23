@@ -11,21 +11,63 @@ import Icon from '../components/Icons';
 import TemplateMockup from '../components/TemplateMockup';
 import EnquiryForm from '../components/EnquiryForm';
 import NotFound from './NotFound';
-import { allServices, serviceCategories, servicePath, processSteps } from '../data/services';
+import { SkeletonLine, SkeletonBlock } from '../components/Skeleton';
+import { serviceCategories, servicePath, processSteps } from '../data/services';
+import { useContent } from '../context/ContentContext';
 import { SITE_URL } from '../config';
+
+function ServiceDetailSkeleton() {
+  return (
+    <>
+      <section className="page-hero">
+        <Container>
+          <SkeletonLine width={220} height={14} className="skel-light mb-3" />
+          <SkeletonLine width="60%" height={38} className="skel-light mb-2" />
+          <SkeletonLine width="40%" height={20} className="skel-light" />
+        </Container>
+      </section>
+      <section className="section">
+        <Container>
+          <Row className="g-5">
+            <Col lg={7}>
+              <SkeletonLine width="100%" className="mb-2" />
+              <SkeletonLine width="95%" className="mb-2" />
+              <SkeletonLine width="80%" />
+            </Col>
+            <Col lg={5}><SkeletonBlock height={160} /></Col>
+          </Row>
+        </Container>
+      </section>
+      <section className="section" id="templates">
+        <Container>
+          <Row className="g-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Col sm={6} lg={4} key={i}>
+                <SkeletonBlock height={200} className="mb-2" />
+                <SkeletonLine width="50%" />
+              </Col>
+            ))}
+          </Row>
+        </Container>
+      </section>
+    </>
+  );
+}
 
 export default function ServiceDetail({ type }) {
   const { slug } = useParams();
-  const svc = allServices.find((s) => s.slug === slug && s.category === type);
+  const { services, status } = useContent();
   const [preview, setPreview] = useState(null);
   const [chosen, setChosen] = useState('');
 
+  if (status !== 'ready') return <ServiceDetailSkeleton />;
+  const svc = services.find((s) => s.slug === slug && s.category === type);
   if (!svc) return <NotFound />;
 
   const cat = serviceCategories[type];
   const path = servicePath(svc);
   const kind = type === 'app' ? 'app' : 'web';
-  const related = cat.items.filter((s) => s.slug !== svc.slug).slice(0, 3);
+  const related = services.filter((s) => s.category === type && s.slug !== svc.slug).slice(0, 3);
 
   const choose = (name) => {
     setChosen(name);
@@ -219,6 +261,11 @@ export default function ServiceDetail({ type }) {
                 <TemplateMockup kind={kind} tpl={preview} mock={svc.mock} size="lg" />
               </div>
               <p className="mt-3 mb-0">{preview.desc} Colours, fonts, sections and features can all be tailored to your brand.</p>
+              {preview.url && (
+                <a href={preview.url} target="_blank" rel="noopener noreferrer" className="d-inline-block mt-2">
+                  Visit sample site: {preview.url} <Icon name="arrow" size={14} />
+                </a>
+              )}
             </Modal.Body>
             <Modal.Footer>
               <button type="button" className="btn btn-outline-brand" onClick={() => setPreview(null)}>Close</button>
