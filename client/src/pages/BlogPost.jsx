@@ -8,7 +8,7 @@ import { PageHero } from '../components/Common';
 import Icon from '../components/Icons';
 import NotFound from './NotFound';
 import { SkeletonLine } from '../components/Skeleton';
-import { blogPath } from '../data/blogs';
+import { blogPath } from '../utils/paths';
 import { useContent } from '../context/ContentContext';
 import { fmtDate } from '../utils/format';
 import { SITE_URL, whatsappLink } from '../config';

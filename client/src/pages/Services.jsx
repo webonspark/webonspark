@@ -7,7 +7,7 @@ import { breadcrumbSchema } from '../utils/seo';
 import { PageHero, SectionTitle } from '../components/Common';
 import Icon from '../components/Icons';
 import EnquiryForm from '../components/EnquiryForm';
-import { serviceCategories, servicePath, processSteps } from '../data/services';
+import { servicePath } from '../utils/paths';
 import { useContent } from '../context/ContentContext';
 import { SkeletonLine, SkeletonBlock } from '../components/Skeleton';
 
@@ -44,7 +44,7 @@ export function ServiceGrid({ items, loading, count = 6 }) {
 }
 
 export default function Services() {
-  const { services, status } = useContent();
+  const { services, serviceCategories, processSteps, status } = useContent();
 
   return (
     <>
@@ -71,12 +71,19 @@ export default function Services() {
         return (
           <section className={`section ${idx ? 'bg-soft' : ''}`} id={k} key={k}>
             <Container>
-              <div className="d-flex flex-wrap justify-content-between align-items-end gap-3">
-                <SectionTitle center={false} eyebrow={c.name} title={c.headline} text={c.intro} />
-                <Link to={`/services/${c.slug}`} className="btn btn-outline-brand mb-4">
-                  All {c.name.toLowerCase()} <Icon name="arrow" size={16} />
-                </Link>
-              </div>
+              {c ? (
+                <div className="d-flex flex-wrap justify-content-between align-items-end gap-3">
+                  <SectionTitle center={false} eyebrow={c.name} title={c.headline} text={c.intro} />
+                  <Link to={`/services/${c.slug}`} className="btn btn-outline-brand mb-4">
+                    All {c.name.toLowerCase()} <Icon name="arrow" size={16} />
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <SkeletonLine width={200} height={14} className="mb-2" />
+                  <SkeletonLine width="50%" height={30} className="mb-4" />
+                </>
+              )}
               <ServiceGrid items={services.filter((s) => s.category === k)} loading={status !== 'ready'} count={k === 'web' ? 10 : 5} />
             </Container>
           </section>

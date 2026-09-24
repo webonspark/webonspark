@@ -16,3 +16,13 @@ export async function createBlog({ slug, ...rest }) {
   await pool.query('INSERT INTO blogs (slug, data) VALUES (?, ?)', [slug, JSON.stringify(rest)]);
   return slug;
 }
+
+export async function updateBlog(slug, { slug: _ignored, ...rest }) {
+  const [result] = await pool.query('UPDATE blogs SET data = ? WHERE slug = ?', [JSON.stringify(rest), slug]);
+  return result.affectedRows > 0;
+}
+
+export async function deleteBlog(slug) {
+  const [result] = await pool.query('DELETE FROM blogs WHERE slug = ?', [slug]);
+  return result.affectedRows > 0;
+}

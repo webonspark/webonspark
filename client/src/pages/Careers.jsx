@@ -8,6 +8,7 @@ import { PageHero, SectionTitle } from '../components/Common';
 import Icon from '../components/Icons';
 import { useFormState } from '../utils/useFormState';
 import { Field, Honeypot, FormStatus, SubmitButton, Form } from '../components/FormKit';
+import FileDropzone from '../components/FileDropzone';
 
 // Edit this list to add / remove openings.
 const jobs = [
@@ -29,8 +30,8 @@ const perks = [
 function ApplyForm({ role }) {
   const form = useFormState(
     'Career',
-    { name: '', email: '', phone: '', role: role || '', experience: '', location: '', resumeLink: '', portfolio: '', message: '' },
-    { name: ['required'], email: ['required', 'email'], phone: ['required', 'phone'], role: ['required'], resumeLink: ['required', 'url'], portfolio: ['url'] }
+    { name: '', email: '', phone: '', role: role || '', experience: '', location: '', resume: '', resumeFilename: '', portfolio: '', message: '' },
+    { name: ['required'], email: ['required', 'email'], phone: ['required', 'phone'], role: ['required'], resume: ['required'], portfolio: ['url'] }
   );
   return (
     <Form noValidate onSubmit={form.onSubmit}>
@@ -42,7 +43,15 @@ function ApplyForm({ role }) {
         <Field form={form} name="role" label="Position" options={jobs.map((j) => j.title)} required col={6} />
         <Field form={form} name="experience" label="Experience" options={['Fresher', '< 1 year', '1–2 years', '2–4 years', '4+ years']} col={6} />
         <Field form={form} name="location" label="Current city" col={6} />
-        <Field form={form} name="resumeLink" label="Resume link (Google Drive / Dropbox)" type="url" required col={6} placeholder="https://" />
+        <div className="col-md-6">
+          <label className="form-label">Resume (PDF or Word) <span className="req" aria-hidden="true">*</span></label>
+          <FileDropzone
+            value={form.values.resume}
+            filename={form.values.resumeFilename}
+            onChange={(url, filename) => form.setValues((v) => ({ ...v, resume: url, resumeFilename: filename }))}
+          />
+          {form.errors.resume && <div className="text-danger small mt-1">{form.errors.resume}</div>}
+        </div>
         <Field form={form} name="portfolio" label="Portfolio / GitHub / LinkedIn" type="url" col={6} placeholder="https://" />
         <Field form={form} name="message" label="Why do you want to join WebOnspark?" as="textarea" rows={3} col={12} />
       </div>

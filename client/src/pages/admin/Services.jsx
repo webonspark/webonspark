@@ -12,6 +12,8 @@ import SkeletonImage from '../../components/SkeletonImage';
 import { SkeletonLine, SkeletonBlock, SkeletonTableRows } from '../../components/Skeleton';
 import { API_URL } from '../../config';
 import { getAdmin } from '../../utils/adminAuth';
+import { usePagination } from '../../components/admin/usePagination';
+import AdminPagination from '../../components/admin/AdminPagination';
 
 const CATEGORIES = [
   { key: 'app', label: 'App Development', icon: 'mobile' },
@@ -37,6 +39,10 @@ export default function AdminServices() {
   const servicesInCategory = services.filter((s) => s.category === selectedCategory);
   const selectedService = services.find((s) => s.slug === selectedSlug);
   const currentTemplates = selectedService?.templates || [];
+  // Pair each template with its real array index so pagination never disturbs the
+  // index-based edit/delete API calls below.
+  const indexedTemplates = currentTemplates.map((t, i) => ({ t, i }));
+  const { page: tplPage, setPage: setTplPage, totalPages: tplTotalPages, pageItems: tplPageItems } = usePagination(indexedTemplates);
 
   const load = async () => {
     setLoadState({ status: 'loading', error: '' });
@@ -217,25 +223,28 @@ export default function AdminServices() {
             {currentTemplates.length === 0 ? (
               <p className="text-muted">No templates yet.</p>
             ) : (
-              <div className="table-responsive">
-                <Table striped bordered hover size="sm" className="align-middle">
-                  <thead><tr><th>Sl. No</th><th>Name</th><th>Image</th><th>URL</th><th></th></tr></thead>
-                  <tbody>
-                    {currentTemplates.map((t, i) => (
-                      <tr key={i}>
-                        <td>{i + 1}</td>
-                        <td>{t.name}</td>
-                        <td>{t.image ? <SkeletonImage src={t.image} alt={t.name} className="tpl-table-thumb" /> : '—'}</td>
-                        <td className="text-truncate" style={{ maxWidth: 200 }}>{t.url || '—'}</td>
-                        <td className="text-nowrap">
-                          <button type="button" className="btn btn-sm btn-outline-brand me-2" onClick={() => startEdit(i, t)}>Edit</button>
-                          <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => onDelete(i, t.name)}>Delete</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
+              <>
+                <div className="table-responsive admin-table-wrap">
+                  <Table className="align-middle admin-table mb-0">
+                    <thead><tr><th>Sl. No</th><th>Name</th><th>Image</th><th>URL</th><th></th></tr></thead>
+                    <tbody>
+                      {tplPageItems.map(({ t, i }, row) => (
+                        <tr key={i}>
+                          <td>{(tplPage - 1) * 20 + row + 1}</td>
+                          <td>{t.name}</td>
+                          <td>{t.image ? <SkeletonImage src={t.image} alt={t.name} className="tpl-table-thumb" /> : '—'}</td>
+                          <td className="text-truncate" style={{ maxWidth: 200 }}>{t.url || '—'}</td>
+                          <td className="text-nowrap">
+                            <button type="button" className="btn btn-sm btn-outline-brand me-2" onClick={() => startEdit(i, t)}>Edit</button>
+                            <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => onDelete(i, t.name)}>Delete</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+                <AdminPagination page={tplPage} totalPages={tplTotalPages} onChange={setTplPage} />
+              </>
             )}
           </>
         )}

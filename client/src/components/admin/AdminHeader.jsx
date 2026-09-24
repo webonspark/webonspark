@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
-import logo from '../../images/webonspark_logo.svg';
+import logo from '../../images/webonspark_logo.png';
 import { getAdmin, adminLogout } from '../../utils/adminAuth';
 
 /** Minimal top bar for /admin/* pages: logo left, sign in/out on the right. No site nav, no footer. */

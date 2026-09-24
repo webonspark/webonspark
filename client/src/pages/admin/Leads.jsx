@@ -9,6 +9,8 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import { SkeletonTableRows } from '../../components/Skeleton';
 import { API_URL } from '../../config';
 import { getAdmin, adminLogout } from '../../utils/adminAuth';
+import { usePagination } from '../../components/admin/usePagination';
+import AdminPagination from '../../components/admin/AdminPagination';
 
 const STATUSES = ['On Hold', 'Accepted', 'Rejected', 'Completed'];
 const EMPTY_FORM = { name: '', phone: '', email: '', websiteType: '', leadOwner: '', project: '', status: 'On Hold' };
@@ -43,6 +45,8 @@ export default function AdminLeads() {
   const [importState, setImportState] = useState({ status: 'idle', msg: '' });
 
   const authHeaders = admin ? { Authorization: `Bearer ${admin.token}` } : {};
+  const { page, setPage, totalPages, pageItems } = usePagination(leads);
+  const startIndex = (page - 1) * 20;
 
   const loadLeads = async () => {
     if (!admin) return;
@@ -224,48 +228,51 @@ export default function AdminLeads() {
         {loadState.status === 'error' && <div className="form-error" role="alert">{loadState.error}</div>}
         {loadState.status === 'ready' && leads.length === 0 && <p className="text-muted">No leads yet.</p>}
         {(loadState.status === 'loading' || (loadState.status === 'ready' && leads.length > 0)) && (
-          <div className="table-responsive">
-            <Table striped bordered hover size="sm" className="align-middle">
-              <thead>
-                <tr>
-                  <th>Sl. No</th>
-                  <th>Date added</th>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Email</th>
-                  <th>Website type</th>
-                  <th>Lead owner</th>
-                  <th>Project</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              {loadState.status === 'loading' ? <tbody><SkeletonTableRows cols={9} /></tbody> : (
-              <tbody>
-                {leads.map((lead, i) => (
-                  <tr key={lead.id}>
-                    <td>{i + 1}</td>
-                    <td className="text-nowrap">{formatDate(lead.created_at)}</td>
-                    <td>{lead.name}</td>
-                    <td>{lead.phone}</td>
-                    <td>{lead.email}</td>
-                    <td>{lead.website_type}</td>
-                    <td>{lead.lead_owner}</td>
-                    <td>{lead.project}</td>
-                    <td>
-                      <Form.Select
-                        size="sm"
-                        value={lead.status}
-                        onChange={(e) => onStatusChange(lead.id, e.target.value)}
-                      >
-                        {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-                      </Form.Select>
-                    </td>
+          <>
+            <div className="table-responsive admin-table-wrap">
+              <Table className="align-middle admin-table mb-0">
+                <thead>
+                  <tr>
+                    <th>Sl. No</th>
+                    <th>Date added</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Website type</th>
+                    <th>Lead owner</th>
+                    <th>Project</th>
+                    <th>Status</th>
                   </tr>
-                ))}
-              </tbody>
-              )}
-            </Table>
-          </div>
+                </thead>
+                {loadState.status === 'loading' ? <tbody><SkeletonTableRows cols={9} /></tbody> : (
+                <tbody>
+                  {pageItems.map((lead, i) => (
+                    <tr key={lead.id}>
+                      <td>{startIndex + i + 1}</td>
+                      <td className="text-nowrap">{formatDate(lead.created_at)}</td>
+                      <td>{lead.name}</td>
+                      <td>{lead.phone}</td>
+                      <td>{lead.email}</td>
+                      <td>{lead.website_type}</td>
+                      <td>{lead.lead_owner}</td>
+                      <td>{lead.project}</td>
+                      <td>
+                        <Form.Select
+                          size="sm"
+                          value={lead.status}
+                          onChange={(e) => onStatusChange(lead.id, e.target.value)}
+                        >
+                          {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                        </Form.Select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                )}
+              </Table>
+            </div>
+            <AdminPagination page={page} totalPages={totalPages} onChange={setPage} />
+          </>
         )}
       </AdminLayout>
     </>

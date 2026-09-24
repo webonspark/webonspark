@@ -8,6 +8,8 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import { SkeletonTableRows } from '../../components/Skeleton';
 import { API_URL } from '../../config';
 import { getAdmin } from '../../utils/adminAuth';
+import { usePagination } from '../../components/admin/usePagination';
+import AdminPagination from '../../components/admin/AdminPagination';
 
 const slugify = (s) => s.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
@@ -33,6 +35,18 @@ function parseContent(text) {
   return blocks;
 }
 
+// Reverses parseContent() so an existing post's stored blocks can be loaded back
+// into the plain-text textarea for editing.
+function blocksToText(blocks) {
+  return (blocks || []).map(([type, value]) => {
+    if (type === 'h2') return `## ${value}`;
+    if (type === 'h3') return `### ${value}`;
+    if (type === 'tip') return `> ${value}`;
+    if (type === 'ul') return value.map((item) => `- ${item}`).join('\n');
+    return value;
+  }).join('\n\n');
+}
+
 const EMPTY = {
   slug: '', title: '', seoTitle: '', description: '', date: new Date().toISOString().slice(0, 10),
   readTime: '5', category: '', tags: '', excerpt: '', content: '',
@@ -44,9 +58,13 @@ export default function AdminBlogs() {
   const [loadState, setLoadState] = useState({ status: 'loading', error: '' });
   const [form, setForm] = useState(EMPTY);
   const [formError, setFormError] = useState('');
+  const [formDone, setFormDone] = useState('');
   const [saving, setSaving] = useState(false);
+  const [editSlug, setEditSlug] = useState(null); // null = adding a new post; a slug = editing that post
 
   const authHeaders = admin ? { Authorization: `Bearer ${admin.token}` } : {};
+  const { page, setPage, totalPages, pageItems } = usePagination(blogs);
+  const startIndex = (page - 1) * 20;
 
   const load = async () => {
     setLoadState({ status: 'loading', error: '' });
@@ -72,13 +90,56 @@ export default function AdminBlogs() {
     });
   };
 
-  const onAdd = async (e) => {
+  const startEdit = (b) => {
+    setEditSlug(b.slug);
+    setFormError('');
+    setFormDone('');
+    setForm({
+      slug: b.slug,
+      title: b.title || '',
+      seoTitle: b.seoTitle || '',
+      description: b.description || '',
+      date: b.date || new Date().toISOString().slice(0, 10),
+      readTime: String(b.readTime || 5),
+      category: b.category || '',
+      tags: (b.tags || []).join(', '),
+      excerpt: b.excerpt || '',
+      content: blocksToText(b.content),
+      _slugTouched: true,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditSlug(null);
+    setForm(EMPTY);
+    setFormError('');
+    setFormDone('');
+  };
+
+  const onDelete = async (b) => {
+    if (!window.confirm(`Delete "${b.title}"? This can't be undone.`)) return;
+    setFormError('');
+    setFormDone('');
+    try {
+      const res = await fetch(`${API_URL}/blogs/${b.slug}`, { method: 'DELETE', headers: authHeaders });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Could not delete blog post');
+      if (editSlug === b.slug) cancelEdit();
+      setFormDone(`Deleted "${b.title}".`);
+      load();
+    } catch (err) {
+      setFormError(err.message);
+    }
+  };
+
+  const onSubmit = async (e) => {
     e.preventDefault();
     if (!form.title.trim() || !form.slug.trim()) {
       setFormError('Title and slug are required');
       return;
     }
     setFormError('');
+    setFormDone('');
     setSaving(true);
 
     const payload = {
@@ -95,13 +156,15 @@ export default function AdminBlogs() {
     };
 
     try {
-      const res = await fetch(`${API_URL}/blogs`, {
-        method: 'POST',
+      const res = await fetch(`${API_URL}/blogs${editSlug ? `/${editSlug}` : ''}`, {
+        method: editSlug ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok || !data.ok) throw new Error(data.error || 'Could not add blog post');
+      if (!res.ok || !data.ok) throw new Error(data.error || `Could not ${editSlug ? 'update' : 'add'} blog post`);
+      setFormDone(editSlug ? `Updated "${form.title}".` : `Added "${form.title}".`);
+      setEditSlug(null);
       setForm(EMPTY);
       load();
     } catch (err) {
@@ -115,8 +178,8 @@ export default function AdminBlogs() {
     <>
       <Seo title="Blogs | WebOnspark Technologies" description="Manage blog posts." path="/admin/blogs" noindex />
       <AdminLayout title="Blogs">
-        <Form noValidate onSubmit={onAdd} className="mb-5">
-          <h2 className="h6">Add a blog post</h2>
+        <Form noValidate onSubmit={onSubmit} className="mb-5">
+          <h2 className="h6">{editSlug ? `Edit post — ${form.title}` : 'Add a blog post'}</h2>
           <Row className="g-3">
             <Col md={7}>
               <Form.Label>Title</Form.Label>
@@ -124,7 +187,14 @@ export default function AdminBlogs() {
             </Col>
             <Col md={5}>
               <Form.Label>Slug</Form.Label>
-              <Form.Control name="slug" value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value, _slugTouched: true }))} required />
+              <Form.Control
+                name="slug"
+                value={form.slug}
+                onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value, _slugTouched: true }))}
+                required
+                readOnly={!!editSlug}
+                disabled={!!editSlug}
+              />
             </Col>
             <Col md={6}>
               <Form.Label>SEO title</Form.Label>
@@ -164,27 +234,45 @@ export default function AdminBlogs() {
             </Col>
           </Row>
 
-          <div className="mt-3">
-            <button type="submit" className="btn btn-brand" disabled={saving}>{saving ? 'Adding…' : 'Add blog post'}</button>
+          <div className="mt-3 d-flex gap-2">
+            <button type="submit" className="btn btn-brand" disabled={saving}>
+              {saving ? 'Saving…' : editSlug ? 'Save changes' : 'Add blog post'}
+            </button>
+            {editSlug && (
+              <button type="button" className="btn btn-outline-brand" onClick={cancelEdit}>Cancel</button>
+            )}
           </div>
           {formError && <div className="form-error mt-3" role="alert">{formError}</div>}
+          {formDone && <div className="text-success mt-3">{formDone}</div>}
         </Form>
 
         <h2 className="h6">Existing posts</h2>
         {loadState.status === 'error' && <div className="form-error" role="alert">{loadState.error}</div>}
         {(loadState.status === 'loading' || loadState.status === 'ready') && (
-          <div className="table-responsive">
-            <Table striped bordered hover size="sm" className="align-middle">
-              <thead><tr><th>Sl. No</th><th>Title</th><th>Category</th><th>Date</th></tr></thead>
-              {loadState.status === 'loading' ? <tbody><SkeletonTableRows cols={4} /></tbody> : (
-              <tbody>
-                {blogs.map((b, i) => (
-                  <tr key={b.slug}><td>{i + 1}</td><td>{b.title}</td><td>{b.category}</td><td>{b.date}</td></tr>
-                ))}
-              </tbody>
-              )}
-            </Table>
-          </div>
+          <>
+            <div className="table-responsive admin-table-wrap">
+              <Table className="align-middle admin-table mb-0">
+                <thead><tr><th>Sl. No</th><th>Title</th><th>Category</th><th>Date</th><th></th></tr></thead>
+                {loadState.status === 'loading' ? <tbody><SkeletonTableRows cols={5} /></tbody> : (
+                <tbody>
+                  {pageItems.map((b, i) => (
+                    <tr key={b.slug}>
+                      <td>{startIndex + i + 1}</td>
+                      <td>{b.title}</td>
+                      <td>{b.category}</td>
+                      <td>{b.date}</td>
+                      <td className="text-nowrap">
+                        <button type="button" className="btn btn-sm btn-outline-brand me-2" onClick={() => startEdit(b)}>Edit</button>
+                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => onDelete(b)}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                )}
+              </Table>
+            </div>
+            <AdminPagination page={page} totalPages={totalPages} onChange={setPage} />
+          </>
         )}
       </AdminLayout>
     </>

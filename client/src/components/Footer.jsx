@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/Col';
 import Logo from './Logo';
 import Icon from './Icons';
 import { COMPANY, whatsappLink, mailLink } from '../config';
-import { servicePath } from '../data/services';
+import { servicePath } from '../utils/paths';
 import { useContent } from '../context/ContentContext';
 import '../css/home.css';
 

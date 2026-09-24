@@ -336,6 +336,37 @@ a.ct-value:hover { color: var(--brand); text-decoration: underline; }
 .image-dropzone-preview { margin-top: 10px; }
 .dropzone-preview-thumb { width: 140px; height: 105px; border-radius: 8px; border: 1px solid var(--line); }
 .tpl-table-thumb { width: 120px; height: 90px; border-radius: 6px; border: 1px solid var(--line); }
+
+/* ---------- Admin tables ---------- */
+.admin-table-wrap { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.admin-table { margin-bottom: 0; border-collapse: separate; border-spacing: 0; }
+.admin-table thead th {
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--line);
+  border-top: none;
+  padding: 14px 18px;
+  white-space: nowrap;
+}
+.admin-table tbody td {
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  vertical-align: middle;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.admin-table tbody tr:first-child td { border-top: none; }
+.admin-table tbody tr:nth-child(even) { background: rgba(47, 32, 101, 0.02); }
+.admin-table tbody tr:hover { background: var(--soft); }
+.admin-pagination { margin: 18px 0 0; }
+.admin-pagination .page-link { color: var(--brand); border-color: var(--line); }
+.admin-pagination .page-item.active .page-link { background: var(--brand); border-color: var(--brand); }
+.admin-pagination .page-link:hover { background: var(--soft); color: var(--brand); }
+.admin-pagination .page-item.disabled .page-link { color: var(--muted); background: transparent; }
 .admin-top-header { border-bottom: 1px solid var(--line); }
 .password-field { position: relative; }
 .password-field .form-control { padding-right: 44px; }

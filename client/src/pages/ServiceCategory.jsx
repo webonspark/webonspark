@@ -6,8 +6,8 @@ import { breadcrumbSchema } from '../utils/seo';
 import { PageHero, SectionTitle, CheckList } from '../components/Common';
 import EnquiryForm from '../components/EnquiryForm';
 import { ServiceGrid } from './Services';
-import { serviceCategories } from '../data/services';
 import { useContent } from '../context/ContentContext';
+import { SkeletonLine, SkeletonBlock } from '../components/Skeleton';
 
 const extras = {
   app: ['Android & iOS from one codebase', 'Admin panel for your team', 'Payment gateway integration', 'Push notifications', 'Play Store & App Store publishing', 'Analytics & crash reporting'],
@@ -15,8 +15,21 @@ const extras = {
 };
 
 export default function ServiceCategory({ type }) {
+  const { services, serviceCategories, status } = useContent();
   const c = serviceCategories[type];
-  const { services, status } = useContent();
+
+  if (status !== 'ready' || !c) {
+    return (
+      <section className="section">
+        <Container>
+          <SkeletonLine width={220} height={14} className="mb-3" />
+          <SkeletonLine width="60%" height={34} className="mb-4" />
+          <SkeletonBlock height={160} />
+        </Container>
+      </section>
+    );
+  }
+
   const items = services.filter((s) => s.category === type);
   const path = `/services/${c.slug}`;
   return (

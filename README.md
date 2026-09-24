@@ -38,6 +38,7 @@ cd server
 npm install
 cp .env.example .env   # fill in DB_* and JWT_SECRET
 mysql -u <user> -p <database> < config/dbschema.sql   # create all tables (safe to re-run)
+mysql -u <user> -p <database> < config/db.data.sql    # optional: load the real services/blogs content
 npm run dev             # http://localhost:5000
 ```
 

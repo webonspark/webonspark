@@ -1,4 +1,4 @@
-import { listBlogs, findBlogBySlug, createBlog } from '../models/blog.js';
+import { listBlogs, findBlogBySlug, createBlog, updateBlog, deleteBlog } from '../models/blog.js';
 
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
@@ -41,5 +41,32 @@ export async function addBlog(req, res) {
     }
     console.error('Failed to add blog:', err.message);
     res.status(500).json({ ok: false, error: 'Could not add blog post' });
+  }
+}
+
+export async function editBlog(req, res) {
+  const { title } = req.body || {};
+  if (!title || !String(title).trim()) {
+    return res.status(400).json({ ok: false, error: 'Title is required' });
+  }
+
+  try {
+    const updated = await updateBlog(req.params.slug, req.body);
+    if (!updated) return res.status(404).json({ ok: false, error: 'Blog post not found' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to update blog:', err.message);
+    res.status(500).json({ ok: false, error: 'Could not update blog post' });
+  }
+}
+
+export async function removeBlog(req, res) {
+  try {
+    const deleted = await deleteBlog(req.params.slug);
+    if (!deleted) return res.status(404).json({ ok: false, error: 'Blog post not found' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to delete blog:', err.message);
+    res.status(500).json({ ok: false, error: 'Could not delete blog post' });
   }
 }

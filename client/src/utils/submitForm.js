@@ -70,7 +70,10 @@ export async function submitForm(formType, data) {
 
   const payload = { formType, page: typeof window !== 'undefined' ? window.location.pathname : '' };
   Object.entries(data).forEach(([k, v]) => {
-    if (k !== 'website') payload[k] = clean(v);
+    if (k === 'website') return;
+    // resume is a data: URI from our own upload endpoint, not raw user text —
+    // clean()'s 1500-char truncation would corrupt it, so it passes through as-is.
+    payload[k] = k === 'resume' ? v : clean(v);
   });
 
   const res = await fetch(`${API_URL}/forms`, {

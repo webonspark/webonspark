@@ -8,12 +8,13 @@ import leadsRouter from './routes/leads.js';
 import servicesRouter from './routes/services.js';
 import blogsRouter from './routes/blogs.js';
 import uploadsRouter, { uploadsDir } from './routes/uploads.js';
+import contentRouter from './routes/content.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
-app.use(express.json({ limit: '2mb' })); // higher than the default 100kb to fit bulk CSV lead imports
+app.use(express.json({ limit: '8mb' })); // fits bulk CSV lead imports and a base64-encoded resume (up to 5MB file)
 app.use('/uploads', express.static(uploadsDir));
 
 app.use('/api/forms', formsRouter);
@@ -22,6 +23,7 @@ app.use('/api/leads', leadsRouter);
 app.use('/api/services', servicesRouter);
 app.use('/api/blogs', blogsRouter);
 app.use('/api/uploads', uploadsRouter);
+app.use('/api/content', contentRouter);
 
 app.get('/api/health', async (_req, res) => {
   try {

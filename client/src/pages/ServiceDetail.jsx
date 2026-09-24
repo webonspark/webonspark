@@ -12,7 +12,7 @@ import TemplateMockup from '../components/TemplateMockup';
 import EnquiryForm from '../components/EnquiryForm';
 import NotFound from './NotFound';
 import { SkeletonLine, SkeletonBlock } from '../components/Skeleton';
-import { serviceCategories, servicePath, processSteps } from '../data/services';
+import { servicePath } from '../utils/paths';
 import { useContent } from '../context/ContentContext';
 import { SITE_URL } from '../config';
 
@@ -56,7 +56,7 @@ function ServiceDetailSkeleton() {
 
 export default function ServiceDetail({ type }) {
   const { slug } = useParams();
-  const { services, status } = useContent();
+  const { services, serviceCategories, processSteps, status } = useContent();
   const [preview, setPreview] = useState(null);
   const [chosen, setChosen] = useState('');
 

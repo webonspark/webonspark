@@ -25,6 +25,8 @@ const AdminContacts = lazy(() => import('./pages/admin/Contacts'));
 const AdminLeads = lazy(() => import('./pages/admin/Leads'));
 const AdminServices = lazy(() => import('./pages/admin/Services'));
 const AdminBlogs = lazy(() => import('./pages/admin/Blogs'));
+const AdminCareers = lazy(() => import('./pages/admin/Careers'));
+const AdminAdmins = lazy(() => import('./pages/admin/Admins'));
 const Privacy = lazy(() => import('./pages/Misc').then((m) => ({ default: m.Privacy })));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -59,6 +61,8 @@ export default function App() {
             <Route path="/admin/leads" element={<AdminLeads />} />
             <Route path="/admin/services" element={<AdminServices />} />
             <Route path="/admin/blogs" element={<AdminBlogs />} />
+            <Route path="/admin/careers" element={<AdminCareers />} />
+            <Route path="/admin/admins" element={<AdminAdmins />} />
             <Route path="/privacy-policy" element={<Privacy />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

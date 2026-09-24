@@ -5,12 +5,12 @@ import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Container from 'react-bootstrap/Container';
 import Icon from './Icons';
-import { servicePath } from '../data/services';
+import { servicePath } from '../utils/paths';
 import { useContent } from '../context/ContentContext';
 import { getUser, logout } from '../utils/auth';
 
 // 👇 NEW LOGO: put your file at src/assets/logo.png (or .svg / .webp) and update the name here
-import logo from '../images/webonspark_logo.svg'
+import logo from '../images/webonspark_logo.png'
 import '../css/home.css';
 
 export default function Header() {

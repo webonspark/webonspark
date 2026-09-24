@@ -8,15 +8,17 @@ const COLUMNS = [
   { key: 'phone', label: 'Phone' },
   { key: 'subject', label: 'Subject' },
   { key: 'service', label: 'Interested in' },
-  { key: 'message', label: 'Message' },
+  // Contact form uses "message", the homepage Question form uses "question" —
+  // show either under one column so both read naturally in the same table.
+  { key: (payload) => payload?.message || payload?.question || '', label: 'Message' },
 ];
 
 export default function AdminContacts() {
   return (
     <>
-      <Seo title="Contacts | WebOnspark Technologies" description="Contact form submissions." path="/admin/contacts" noindex />
+      <Seo title="Contacts | WebOnspark Technologies" description="Contact and question form submissions." path="/admin/contacts" noindex />
       <AdminLayout title="Contacts">
-        <AdminSubmissionsTable formType="Contact" columns={COLUMNS} emptyText="No contact messages yet." />
+        <AdminSubmissionsTable formTypes={['Contact', 'Question']} columns={COLUMNS} emptyText="No contact messages or questions yet." />
       </AdminLayout>
     </>
   );

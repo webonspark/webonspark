@@ -8,8 +8,7 @@ const dist = path.join(root, 'dist');
 const ssrDir = path.join(root, 'dist-ssr');
 
 const { render, routes } = await import(pathToFileURL(path.join(ssrDir, 'entry-server.js')).href);
-const { servicePath } = await import(pathToFileURL(path.join(root, 'src/data/services.js')).href);
-const { blogPath } = await import(pathToFileURL(path.join(root, 'src/data/blogs.js')).href);
+const { servicePath, blogPath } = await import(pathToFileURL(path.join(root, 'src/utils/paths.js')).href);
 const configSrc = fs.readFileSync(path.join(root, 'src/config.js'), 'utf8');
 const SITE_URL = (configSrc.match(/SITE_URL\s*=\s*'([^']+)'/) || [])[1] || 'https://www.example.com';
 const API_URL = process.env.VITE_API_URL || 'http://localhost:5000/api';

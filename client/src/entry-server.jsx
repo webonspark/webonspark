@@ -27,6 +27,8 @@ export const routes = [
   '/admin/leads',
   '/admin/services',
   '/admin/blogs',
+  '/admin/careers',
+  '/admin/admins',
   '/privacy-policy',
 ];
 

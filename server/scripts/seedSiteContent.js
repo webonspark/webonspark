@@ -1,8 +1,9 @@
-// Category-level page copy (SEO/marketing text) and shared helpers.
-// The actual list of services is stored in the database (see server/models/service.js)
-// and fetched at runtime via ContentContext (client/src/context/ContentContext.jsx).
+// One-off: seeds serviceCategories + processSteps into site_content.
+// Run with: node scripts/seedSiteContent.js
+import 'dotenv/config';
+import { pool } from '../config/db.js';
 
-export const serviceCategories = {
+const serviceCategories = {
   app: {
     key: 'app',
     slug: 'app-development',
@@ -27,13 +28,20 @@ export const serviceCategories = {
   },
 };
 
-export const servicePath = (s) =>
-  `/services/${s.category === 'app' ? 'app-development' : 'website-development'}/${s.slug}`;
-
-export const processSteps = [
+const processSteps = [
   ['Discover', 'A free call to understand your business, customers and goals.'],
   ['Plan & design', 'Sitemap, wireframes and a visual design you approve before coding.'],
   ['Build', 'Clean, fast, secure development with weekly progress updates.'],
   ['Test & launch', 'Checks on real phones and browsers, then a smooth launch.'],
   ['Grow', 'SEO, updates and support so your platform keeps improving.'],
 ];
+
+for (const [key, value] of Object.entries({ serviceCategories, processSteps })) {
+  await pool.query(
+    'INSERT INTO site_content (content_key, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = VALUES(value)',
+    [key, JSON.stringify(value)]
+  );
+  console.log(`seeded: ${key}`);
+}
+
+process.exit(0);

@@ -22,6 +22,8 @@ const SECTIONS = [
   { to: '/admin/leads', label: 'Leads', text: 'Add, import and track leads.' },
   { to: '/admin/services', label: 'Services', text: 'Add and manage services shown on the site.' },
   { to: '/admin/blogs', label: 'Blogs', text: 'Add and manage blog posts.' },
+  { to: '/admin/careers', label: 'Careers', text: 'View job applications and resumes.' },
+  { to: '/admin/admins', label: 'Admins', text: 'Add, remove, and manage admin accounts.' },
 ];
 
 // Validated for CVD-safe adjacency and contrast with scripts/validate_palette.js (dataviz skill).

@@ -7,7 +7,7 @@ import { breadcrumbSchema } from '../utils/seo';
 import { PageHero } from '../components/Common';
 import Icon from '../components/Icons';
 import { SkeletonLine, SkeletonBlock } from '../components/Skeleton';
-import { blogPath } from '../data/blogs';
+import { blogPath } from '../utils/paths';
 import { useContent } from '../context/ContentContext';
 import { SITE_URL } from '../config';
 import { fmtDate } from '../utils/format';
